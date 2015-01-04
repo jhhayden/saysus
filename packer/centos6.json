@@ -1,0 +1,67 @@
+{
+"provisioners": [
+{
+"type": "shell",
+"execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+"script": "scripts/ansible.sh"
+},
+{
+"type": "ansible-local",
+"playbook_file": "ansible/main.yml",
+"role_paths": [
+"/usr/local/etc/ansible/roles/geerlingguy.packer-rhel",
+"/usr/local/etc/ansible/roles/geerlingguy.nfs"
+]
+},
+{
+"type": "shell",
+"execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+"script": "scripts/cleanup.sh"
+}
+],
+"builders": [
+{
+"type": "virtualbox-iso",
+"boot_command": [
+"<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+],
+"boot_wait": "10s",
+"disk_size": 20480,
+"guest_os_type": "RedHat_64",
+"headless": false,
+"http_directory": "http",
+"iso_urls": [
+"/Users/jhayden/Downloads/isos/CentOS-6.6-x86_64-bin-DVD1.iso"],
+"iso_checksum_type": "md5",
+"iso_checksum": "7b1fb1a11499b31271ded79da6af8584",
+"ssh_username": "vagrant",
+"ssh_password": "vagrant",
+"ssh_port": 22,
+"ssh_wait_timeout": "10000s",
+"shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
+"guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+"virtualbox_version_file": ".vbox_version",
+"vm_name": "packer-centos-6.6-x86_64",
+"vboxmanage": [
+[
+"modifyvm",
+"{{.Name}}",
+"--memory",
+"512"
+],
+[
+"modifyvm",
+"{{.Name}}",
+"--cpus",
+"2"
+]
+]
+}
+],
+"post-processors": [
+{
+"output": "builds/VirtualBox-centos66.box",
+"type": "vagrant"
+}
+]
+}
